@@ -23,7 +23,7 @@ class Function:
         raise NotImplementedError
 
 class TestFunctionMethods(unittest.TestCase):
-    def manual_back_propagation(self):
+    def test_manual_back_propagation(self):
         import numpy as np
         class Square(Function):
             def forward(self, x):
