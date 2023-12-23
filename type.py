@@ -3,12 +3,17 @@ import numpy as np
 
 class Variable:
     def __init__(self, data):
+        if data is not None:
+            if not isinstance(data, np.ndarray):
+                raise TypeError("{} is not supported.".format(type(data)))
         self.data = data
         self.grad = None
         self.creator = None
     def set_creator(self, func):
         self.creator = func
     def backward(self):
+        if self.grad is None:
+            self.grad = np.ones_like(self.data)
         funcs: list[Function] = [self.creator]
         while funcs:
             f = funcs.pop()
@@ -20,9 +25,15 @@ class Variable:
 
 class Function:
     def __call__(self, input: Variable) -> Variable:
+        """numpyのスカラーを配列に変換"""
+        def as_array(x):
+            if np.isscalar(x):
+                return np.array(x)
+            return x
+        
         x = input.data
         y = self.forward(x)
-        output = Variable(y)
+        output = Variable(as_array(y))
         output.set_creator(self)
         self.input = input
         self.output = output
@@ -51,7 +62,7 @@ class TestFunctionMethods(unittest.TestCase):
                 gx = np.exp(x) * gy
                 return gx
         """forward"""
-        x = Variable(0.5)
+        x = Variable(np.array(0.5))
         A = Square()
         B = Exp()
         C = Square()
@@ -59,7 +70,6 @@ class TestFunctionMethods(unittest.TestCase):
         b = B(a)
         y = C(b)
         """backward"""
-        y.grad = np.array(1.0)
         y.backward()
         # 3.29744...
         self.assertTrue(abs(x.grad-3.29) <= 0.01)
@@ -81,7 +91,7 @@ class TestFunctionMethods(unittest.TestCase):
                 gx = np.exp(x) * gy
                 return gx
         """forward"""
-        x = Variable(0.5)
+        x = Variable(np.array(0.5))
         A = Square()
         B = Exp()
         C = Square()
