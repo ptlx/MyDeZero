@@ -6,9 +6,15 @@ class Variable:
         self.data = data
         self.grad = None
         self.creator = None
-    
     def set_creator(self, func):
         self.creator = func
+    def backward(self):
+        f = self.creator
+        if f is not None:
+            x = f.input
+            x.grad = f.backward(self.grad)
+            x.backward() # 再帰
+
 
 class Function:
     def __call__(self, input: Variable) -> Variable:
@@ -25,7 +31,7 @@ class Function:
         raise NotImplementedError
 
 class TestFunctionMethods(unittest.TestCase):
-    def test_manual_back_propagation(self):
+    def test_auto_back_propagation(self):
         class Square(Function):
             def forward(self, x):
                 y = x ** 2
@@ -52,9 +58,7 @@ class TestFunctionMethods(unittest.TestCase):
         y = C(b)
         """backward"""
         y.grad = np.array(1.0)
-        b.grad = C.backward(y.grad)
-        a.grad = B.backward(b.grad)
-        x.grad = A.backward(a.grad)
+        y.backward()
         # 3.29744...
         self.assertTrue(abs(x.grad-3.29) <= 0.01)
     def test_variable_creator(self):
