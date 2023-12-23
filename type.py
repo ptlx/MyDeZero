@@ -9,11 +9,13 @@ class Variable:
     def set_creator(self, func):
         self.creator = func
     def backward(self):
-        f = self.creator
-        if f is not None:
-            x = f.input
-            x.grad = f.backward(self.grad)
-            x.backward() # 再帰
+        funcs: list[Function] = [self.creator]
+        while funcs:
+            f = funcs.pop()
+            x, y = f.input, f.output
+            x.grad = f.backward(y.grad)
+            if x.creator is not None:
+                funcs.append(x.creator)
 
 
 class Function:
