@@ -62,5 +62,24 @@ class TestFunctionMethods(unittest.TestCase):
         self.assertTrue(y.creator.inputs[0].creator.inputs[0] == a)
         self.assertTrue(y.creator.inputs[0].creator.inputs[0].creator == A)
         self.assertTrue(y.creator.inputs[0].creator.inputs[0].creator.inputs[0] == x)
+    def test_grad(self):
+        class Add(Function):
+            def forward(self, x1, x2):
+                y = x1 + x2
+                return y
+            def backward(self, gy):
+                x = self.inputs[0].data
+                return gy, gy
+        x = Variable(np.array(3.0))
+        def add(x0, x1):
+            return Add()(x0, x1)
+        y = add(x, x)
+        y.backward()
+        self.assertEqual(x.grad, 2.0)
+        x.cleargrad()
+        y = add(add(x, x), x)
+        y.backward()
+        self.assertEqual(x.grad, 3.0)
+
 if __name__ == "__main__":
     unittest.main()

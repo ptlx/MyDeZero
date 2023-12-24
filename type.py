@@ -19,11 +19,18 @@ class Variable:
             gys = [output.grad for output in f.outputs]
             gxs = f.backward(*gys)
             if not isinstance(gxs, tuple):
-                gxs = (gxs, )
+                gxs = (gxs,)
             for x, gx in zip(f.inputs, gxs):
-                x.grad = gx
+                if x.grad is None:
+                    x.grad = gx
+                else:
+                    x.grad = x.grad + gx
                 if x.creator is not None:
                     funcs.append(x.creator)
+    """勾配のリセット"""
+    def cleargrad(self):
+        self.grad = None
+    
 
 
 class Function:
