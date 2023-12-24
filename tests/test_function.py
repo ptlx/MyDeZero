@@ -7,7 +7,7 @@ class TestFunctionMethods(unittest.TestCase):
                 y = x ** 2
                 return y
             def backward(self, gy):
-                x = self.input.data
+                x = self.inputs[0].data
                 gx = 2 * x * gy
                 return gx
         class Exp(Function):
@@ -15,7 +15,7 @@ class TestFunctionMethods(unittest.TestCase):
                 y = np.exp(x)
                 return y
             def backward(self, gy):
-                x = self.input.data
+                x = self.inputs[0].data
                 gx = np.exp(x) * gy
                 return gx
         """forward"""
@@ -36,7 +36,7 @@ class TestFunctionMethods(unittest.TestCase):
                 y = x ** 2
                 return y
             def backward(self, gy):
-                x = self.input.data
+                x = self.inputs[0].data
                 gx = 2 * x * gy
                 return gx
         class Exp(Function):
@@ -44,7 +44,7 @@ class TestFunctionMethods(unittest.TestCase):
                 y = np.exp(x)
                 return y
             def backward(self, gy):
-                x = self.input.data
+                x = self.inputs[0].data
                 gx = np.exp(x) * gy
                 return gx
         """forward"""
@@ -57,10 +57,10 @@ class TestFunctionMethods(unittest.TestCase):
         y = C(b)
         """test"""
         self.assertTrue(y.creator == C)
-        self.assertTrue(y.creator.input == b)
-        self.assertTrue(y.creator.input.creator == B)
-        self.assertTrue(y.creator.input.creator.input == a)
-        self.assertTrue(y.creator.input.creator.input.creator == A)
-        self.assertTrue(y.creator.input.creator.input.creator.input == x)
+        self.assertTrue(y.creator.inputs[0] == b)
+        self.assertTrue(y.creator.inputs[0].creator == B)
+        self.assertTrue(y.creator.inputs[0].creator.inputs[0] == a)
+        self.assertTrue(y.creator.inputs[0].creator.inputs[0].creator == A)
+        self.assertTrue(y.creator.inputs[0].creator.inputs[0].creator.inputs[0] == x)
 if __name__ == "__main__":
     unittest.main()
